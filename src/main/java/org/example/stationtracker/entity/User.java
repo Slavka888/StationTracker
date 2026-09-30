@@ -12,10 +12,10 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "name", nullable = false)
-    private String name;
+    @Column(name = "login", nullable = false)
+    private String login;
 
-    public User(String name) {
-        this.name = name;
+    public User(String login) {
+        this.login = login;
     }
 }

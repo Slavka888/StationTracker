@@ -12,7 +12,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 public class TripDTO {
-    private String userName;
+    private String userLogin;
     private String station;
     private Instant endedAt;
     private Instant notifiedAt;

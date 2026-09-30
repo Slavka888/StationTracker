@@ -20,6 +20,6 @@ public class Station {
     private String line;
     @Column(name = "latitude", precision = 11, scale = 8, nullable = false)
     private BigDecimal latitude;
-    @Column(name = "latitude", precision = 11, scale = 8, nullable = false)
+    @Column(name = "longitude", precision = 11, scale = 8, nullable = false)
     private BigDecimal longitude;
 }
