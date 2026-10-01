@@ -1,6 +1,7 @@
 package org.example.stationtracker.service;
 
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.example.stationtracker.DTO.AuthResponse;
 import org.example.stationtracker.DTO.LoginRequest;
 import org.example.stationtracker.DTO.RegisterRequest;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+@Slf4j
 @Service
 public class AuthService {
     private final UserRepository userRepository;
@@ -41,7 +43,7 @@ public class AuthService {
         String login = registerRequest.login();
 
         if (userRepository.existsUserByLogin(login)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User with login " + login + " already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User with this login already exists");
         }
 
         String password = passwordEncoder.encode(registerRequest.password());
@@ -50,6 +52,10 @@ public class AuthService {
 
         String token = jwtService.generateAccessToken(user);
 
+        log.info(
+                "New user with login={} registered",
+                login
+        );
         return new AuthResponse(
                 token,
                 "Bearer",
@@ -68,6 +74,7 @@ public class AuthService {
             );
         }
         catch (AuthenticationException e) {
+            log.error("Authentication Exception", e);
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid login or password");
         }
 
@@ -76,6 +83,10 @@ public class AuthService {
 
         String token = jwtService.generateAccessToken(user);
 
+        log.info(
+                "User with login={} logged in",
+                loginRequest.login()
+        );
         return new AuthResponse(
                 token,
                 "Bearer",
