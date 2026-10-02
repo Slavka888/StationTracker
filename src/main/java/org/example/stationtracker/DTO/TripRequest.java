@@ -1,14 +1,13 @@
 package org.example.stationtracker.DTO;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import org.example.stationtracker.enums.NotificationType;
 
 import java.util.List;
 
 public record TripRequest(
-        @NotBlank
+        @NotEmpty
         List<Long> stationIds,
-        @NotBlank
         NotificationType notificationType
 ) {
 }

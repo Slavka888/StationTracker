@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.stationtracker.enums.NotificationType;
 import org.example.stationtracker.enums.TripStatus;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class Trip {
 
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("position ASC")
+    @BatchSize(size = 20)
     private List<TripStation> stations = new ArrayList<>();
 
     private Instant createdAt;

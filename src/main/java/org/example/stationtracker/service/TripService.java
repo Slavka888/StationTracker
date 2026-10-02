@@ -1,16 +1,22 @@
 package org.example.stationtracker.service;
 
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.example.stationtracker.DTO.TripRequest;
+import org.example.stationtracker.DTO.TripResponse;
 import org.example.stationtracker.entity.Station;
 import org.example.stationtracker.entity.Trip;
 import org.example.stationtracker.entity.User;
+import org.example.stationtracker.enums.TripStatus;
 import org.example.stationtracker.repository.StationRepository;
 import org.example.stationtracker.repository.TripRepository;
 import org.example.stationtracker.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -62,5 +68,37 @@ public class TripService {
         );
 
         return savedTrip;
+    }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public Page<TripResponse> getTripHistory(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Trip> trips = tripRepository.findAllByUserIdAndTripStatusIn(userId, List.of(TripStatus.COMPLETED, TripStatus.CANCELLED), pageable);
+
+        log.info(
+                "Returned trip history to userId = {}",
+                userId
+        );
+
+        return trips.map(trip -> TripResponse.from(trip));
+    }
+
+    @Transactional
+    public void deleteTrip(Long userId, Long tripId) {
+        tripRepository.deleteByIdAndUserId(tripId, userId);
+        log.info(
+                "Trip deleted from history: tripId={}, userId={}",
+                tripId,
+                userId
+        );
+    }
+
+    @Transactional
+    public void deleteAllTrips(Long userId) {
+        tripRepository.deleteAllByUserIdAndTripStatusIn(userId, List.of(TripStatus.CANCELLED, TripStatus.COMPLETED));
+        log.info(
+                "All history cleared: userId={}",
+                userId
+        );
     }
 }
