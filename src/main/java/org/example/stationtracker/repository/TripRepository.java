@@ -14,4 +14,5 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     Page<Trip> findAllByUserIdAndTripStatusIn(Long userId, Collection<TripStatus> status, Pageable pageable);
     void deleteAllByUserIdAndTripStatusIn(Long user_id, Collection<TripStatus> tripStatus);
     void deleteByIdAndUserId(Long tripId, Long userId);
+    void deleteAllByUserId(Long userId);
 }
