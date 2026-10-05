@@ -65,6 +65,14 @@ public class Trip {
         this.tripStatus = TripStatus.ACTIVE;
     }
 
+    public void markCancelled() {
+        if (this.tripStatus != TripStatus.ACTIVE) {
+            throw new IllegalStateException("Trip must be ACTIVE before marking cancelled");
+        }
+        this.tripStatus = TripStatus.CANCELLED;
+        this.endedAt = Instant.now();
+    }
+
     public void addStation(Station station) {
         TripStation tripStation = new TripStation(
                 this,

@@ -32,7 +32,7 @@ public class TripService {
     @Autowired
     public TripService(TripRepository tripRepository, StationRepository stationRepository, UserRepository userRepository) {
         this.tripRepository = tripRepository;
-        this.stationRepository =  stationRepository;
+        this.stationRepository = stationRepository;
         this.userRepository = userRepository;
     }
 
@@ -58,7 +58,7 @@ public class TripService {
             trip.addStation(station);
         }
 
-        Trip savedTrip =  tripRepository.save(trip);
+        Trip savedTrip = tripRepository.save(trip);
 
         log.info(
                 "Trip created: tripId = {}, userId = {}, stationCount = {}",
@@ -100,5 +100,46 @@ public class TripService {
                 "All history cleared: userId={}",
                 userId
         );
+    }
+
+    @Transactional
+    public TripResponse startTrip(Long tripId, Long userId) {
+        Trip trip = tripRepository.findByIdAndUserId(tripId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Trip not found"));
+        trip.markStarted();
+        //логика передачи координат на мобильное утсройство
+        log.info(
+                "Trip started: tripId={}, userId={}",
+                tripId,
+                userId
+        );
+        return TripResponse.from(trip);
+    }
+
+    @Transactional
+    public TripResponse finishTrip(Long tripId, Long userId) {
+        Trip trip = tripRepository.findByIdAndUserId(tripId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Trip not found"));
+        trip.markFinished();
+        log.info(
+                "Trip finished: tripId={}, userId={}",
+                tripId,
+                userId
+        );
+        return TripResponse.from(trip);
+    }
+
+    @Transactional
+    public TripResponse cancelTrip(Long tripId, Long userId) {
+        //логика оповещения устройства об отмене
+        Trip trip = tripRepository.findByIdAndUserId(tripId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Trip not found"));
+        trip.markCancelled();
+        log.info(
+                "Trip cancelled: tripId={}, userId={}",
+                tripId,
+                userId
+        );
+        return TripResponse.from(trip);
     }
 }

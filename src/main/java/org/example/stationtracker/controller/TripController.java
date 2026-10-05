@@ -37,6 +37,27 @@ public class TripController {
         return ResponseEntity.status(HttpStatus.CREATED).body(tripResponse);
     }
 
+    @PatchMapping("/{tripId}/start")
+    public ResponseEntity<TripResponse> startTrip(@PathVariable Long tripId, @AuthenticationPrincipal Jwt jwt) {
+        Long userId =  jwt.getClaim("userId");
+        TripResponse tripResponse = tripService.startTrip(tripId, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(tripResponse);
+    }
+
+    @PatchMapping("/{tripId}/finish")
+    public ResponseEntity<TripResponse> finishTrip(@PathVariable Long tripId, @AuthenticationPrincipal Jwt jwt) {
+        Long userId = jwt.getClaim("userId");
+        TripResponse tripResponse = tripService.finishTrip(tripId, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(tripResponse);
+    }
+
+    @PatchMapping("/{tripId}/cancel")
+    public ResponseEntity<TripResponse> cancelTrip(@PathVariable Long tripId, @AuthenticationPrincipal Jwt jwt) {
+        Long userId = jwt.getClaim("userId");
+        TripResponse tripResponse = tripService.cancelTrip(tripId, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(tripResponse);
+    }
+
     @DeleteMapping("/history/{tripId}")
     public ResponseEntity<Void> deleteTrip(@AuthenticationPrincipal Jwt jwt, @PathVariable Long tripId) {
         Long userId =  jwt.getClaim("userId");

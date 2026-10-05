@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Long> {
@@ -15,4 +16,6 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     void deleteAllByUserIdAndTripStatusIn(Long user_id, Collection<TripStatus> tripStatus);
     void deleteByIdAndUserId(Long tripId, Long userId);
     void deleteAllByUserId(Long userId);
+
+    Optional<Trip> findByIdAndUserId(Long tripId, Long userId);
 }
