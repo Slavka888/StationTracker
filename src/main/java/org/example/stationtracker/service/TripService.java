@@ -3,6 +3,7 @@ package org.example.stationtracker.service;
 import lombok.extern.slf4j.Slf4j;
 import org.example.stationtracker.DTO.TripRequest;
 import org.example.stationtracker.DTO.TripResponse;
+import org.example.stationtracker.DTO.TripStartedEvent;
 import org.example.stationtracker.entity.Station;
 import org.example.stationtracker.entity.Trip;
 import org.example.stationtracker.entity.User;
@@ -11,6 +12,7 @@ import org.example.stationtracker.repository.StationRepository;
 import org.example.stationtracker.repository.TripRepository;
 import org.example.stationtracker.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,12 +30,14 @@ public class TripService {
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
     private final StationRepository stationRepository;
+    private final ApplicationEventPublisher publisher;
 
     @Autowired
-    public TripService(TripRepository tripRepository, StationRepository stationRepository, UserRepository userRepository) {
+    public TripService(TripRepository tripRepository, StationRepository stationRepository, UserRepository userRepository, ApplicationEventPublisher publisher) {
         this.tripRepository = tripRepository;
         this.stationRepository = stationRepository;
         this.userRepository = userRepository;
+        this.publisher = publisher;
     }
 
     @Transactional
@@ -107,7 +111,9 @@ public class TripService {
         Trip trip = tripRepository.findByIdAndUserId(tripId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Trip not found"));
         trip.markStarted();
-        //логика передачи координат на мобильное утсройство
+
+        publisher.publishEvent(new TripStartedEvent(tripId, userId));
+
         log.info(
                 "Trip started: tripId={}, userId={}",
                 tripId,
