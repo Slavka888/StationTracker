@@ -29,12 +29,25 @@ public class TripController {
         return tripService.getTripHistory(userId, page, size);
     }
 
+    @GetMapping("/{tripId}")
+    public ResponseEntity<TripResponse> getTrip(@PathVariable("tripId") Long tripId, @AuthenticationPrincipal Jwt jwt) {
+        Long userId =  jwt.getClaim("userId");
+        return ResponseEntity.ok(tripService.getTrip(tripId, userId));
+    }
+
     @PostMapping()
     public ResponseEntity<TripResponse> addTrip(@Valid @RequestBody TripRequest tripRequest, @AuthenticationPrincipal Jwt jwt) {
         Trip trip = tripService.createTrip(tripRequest, jwt.getClaim("userId"));
 
         TripResponse tripResponse = TripResponse.from(trip);
         return ResponseEntity.status(HttpStatus.CREATED).body(tripResponse);
+    }
+
+    @PatchMapping("/{tripId}/stations/{tripStationId}")
+    public ResponseEntity<Void> markStationNotified(@PathVariable Long tripId, @PathVariable Long tripStationId, @AuthenticationPrincipal Jwt jwt) {
+        Long userId =  jwt.getClaim("userId");
+        tripService.markStationNotified(tripId, tripStationId, userId);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{tripId}/start")

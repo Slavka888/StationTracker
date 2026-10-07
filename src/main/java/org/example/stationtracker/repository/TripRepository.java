@@ -1,6 +1,7 @@
 package org.example.stationtracker.repository;
 
 import org.example.stationtracker.entity.Trip;
+import org.example.stationtracker.entity.User;
 import org.example.stationtracker.enums.TripStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,8 +15,10 @@ import java.util.Optional;
 public interface TripRepository extends JpaRepository<Trip, Long> {
     Page<Trip> findAllByUserIdAndTripStatusIn(Long userId, Collection<TripStatus> status, Pageable pageable);
     void deleteAllByUserIdAndTripStatusIn(Long user_id, Collection<TripStatus> tripStatus);
-    void deleteByIdAndUserId(Long tripId, Long userId);
+    void deleteByIdAndUserIdAndTripStatusIn(Long id, Long user_id, Collection<TripStatus> tripStatus);
     void deleteAllByUserId(Long userId);
 
     Optional<Trip> findByIdAndUserId(Long tripId, Long userId);
+
+    Long user(User user);
 }

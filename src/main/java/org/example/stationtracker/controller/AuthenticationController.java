@@ -3,6 +3,7 @@ package org.example.stationtracker.controller;
 import jakarta.validation.Valid;
 import org.example.stationtracker.DTO.AuthResponse;
 import org.example.stationtracker.DTO.LoginRequest;
+import org.example.stationtracker.DTO.RefreshRequest;
 import org.example.stationtracker.DTO.RegisterRequest;
 import org.example.stationtracker.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,5 +34,10 @@ public class AuthenticationController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         AuthResponse authResponse = authService.login(loginRequest);
         return ResponseEntity.ok().body(authResponse);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshRequest refreshRequest) {
+        return ResponseEntity.ok(authService.refreshToken(refreshRequest));
     }
 }

@@ -12,6 +12,8 @@ public record TripResponse(
     TripStatus status,
     NotificationType notificationType,
     Instant createdAt,
+    Instant startedAt,
+    Instant endedAt,
     List<TripStationResponse> stations
 ) {
     public static TripResponse from(Trip trip) {
@@ -20,6 +22,8 @@ public record TripResponse(
                 trip.getTripStatus(),
                 trip.getNotificationType(),
                 trip.getCreatedAt(),
+                trip.getStartedAt(),
+                trip.getEndedAt(),
                 trip.getStations()
                         .stream()
                         .map(el -> TripStationResponse.from(el))

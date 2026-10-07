@@ -19,12 +19,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TripRepository tripRepository;
+    private final RefreshTokenService refreshTokenService;
 
     @Autowired
-    public UserService(UserRepository userRepository, TripRepository tripRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, TripRepository tripRepository, PasswordEncoder passwordEncoder, RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tripRepository = tripRepository;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Transactional
@@ -36,6 +38,8 @@ public class UserService {
                 )
         );
         updatedUser.setLogin(changeUserDataRequest.newLogin().trim());
+
+        refreshTokenService.revokeAll(userId);
 
         log.info(
                 "updated updated user data to user with id={}",
@@ -55,6 +59,7 @@ public class UserService {
             );
         }
 
+        refreshTokenService.revokeAll(id);
         tripRepository.deleteAllByUserId(id);
         userRepository.deleteById(id);
     }

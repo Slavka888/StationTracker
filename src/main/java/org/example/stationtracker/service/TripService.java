@@ -6,6 +6,7 @@ import org.example.stationtracker.DTO.TripResponse;
 import org.example.stationtracker.DTO.TripStartedEvent;
 import org.example.stationtracker.entity.Station;
 import org.example.stationtracker.entity.Trip;
+import org.example.stationtracker.entity.TripStation;
 import org.example.stationtracker.entity.User;
 import org.example.stationtracker.enums.TripStatus;
 import org.example.stationtracker.repository.StationRepository;
@@ -17,8 +18,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -47,6 +50,9 @@ public class TripService {
         List<Long> stationIds = tripRequest.stationIds();
         List<Station> foundStations = stationRepository.findAllById(stationIds);
 
+        if (foundStations.size() != stationIds.size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more stations do not exist");
+        }
 
         Map<Long, Station> stationsById = foundStations
                 .stream()
@@ -87,9 +93,16 @@ public class TripService {
         return trips.map(trip -> TripResponse.from(trip));
     }
 
+    @Transactional(readOnly = true)
+    public TripResponse getTrip(Long tripId, Long userId) {
+        Trip trip = tripRepository.findByIdAndUserId(tripId, userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
+        return TripResponse.from(trip);
+    }
+
     @Transactional
     public void deleteTrip(Long userId, Long tripId) {
-        tripRepository.deleteByIdAndUserId(tripId, userId);
+        tripRepository.deleteByIdAndUserIdAndTripStatusIn(tripId, userId, List.of(TripStatus.COMPLETED, TripStatus.CANCELLED));
         log.info(
                 "Trip deleted from history: tripId={}, userId={}",
                 tripId,
@@ -147,5 +160,34 @@ public class TripService {
                 userId
         );
         return TripResponse.from(trip);
+    }
+
+    @Transactional
+    public void markStationNotified(Long tripId, Long tripStationId, Long userId) {
+        Trip trip = tripRepository.findByIdAndUserId(tripId, userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
+
+        if (!trip.getTripStatus().equals(TripStatus.ACTIVE)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trip status must be ACTIVE");
+        }
+
+        TripStation tripStation = trip.getStations()
+                .stream()
+                .filter(station -> station.getId().equals(tripStationId))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trip station not found"));
+
+        if (tripStation.isNotified()){
+            return;
+        }
+
+        tripStation.markNotified();
+
+        log.info(
+                "Trip station marked as notified: tripId={}, tripStationId={}, userId={}",
+                tripId,
+                tripStationId,
+                userId
+        );
     }
 }
