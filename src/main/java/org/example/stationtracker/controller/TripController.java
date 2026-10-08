@@ -35,6 +35,16 @@ public class TripController {
         return ResponseEntity.ok(tripService.getTrip(tripId, userId));
     }
 
+    @GetMapping("/current")
+    public ResponseEntity<TripResponse> getCurrentTrip(@AuthenticationPrincipal Jwt jwt) {
+        Long userId = jwt.getClaim("userId");
+
+        return tripService
+                .getCurrentTrip(userId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
+    }
+
     @PostMapping()
     public ResponseEntity<TripResponse> addTrip(@Valid @RequestBody TripRequest tripRequest, @AuthenticationPrincipal Jwt jwt) {
         Trip trip = tripService.createTrip(tripRequest, jwt.getClaim("userId"));

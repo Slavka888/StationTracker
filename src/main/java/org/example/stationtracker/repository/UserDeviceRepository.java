@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface UserDeviceRepository extends JpaRepository<UserDevice, Long> {
     Optional<UserDevice> findByFirebaseInstallationId(String firebaseInstallationId);
     List<UserDevice> findAllByUserIdAndEnabledTrue(Long userId);
+    void deleteByUserId(Long id);
 }

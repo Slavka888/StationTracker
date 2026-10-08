@@ -25,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -49,6 +50,10 @@ public class TripService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         List<Long> stationIds = tripRequest.stationIds();
         List<Station> foundStations = stationRepository.findAllById(stationIds);
+
+        if (tripRepository.existsByUserIdAndTripStatusIn(id, List.of(TripStatus.CREATED, TripStatus.ACTIVE))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trip for user already exists");
+        }
 
         if (foundStations.size() != stationIds.size()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more stations do not exist");
@@ -78,6 +83,18 @@ public class TripService {
         );
 
         return savedTrip;
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<TripResponse> getCurrentTrip(Long userId) {
+        Optional<Trip> activeTrip = tripRepository.findFirstByUserIdAndTripStatusOrderByCreatedAtDesc(userId,TripStatus.ACTIVE);
+
+        if (activeTrip.isPresent()) {
+            return activeTrip.map(TripResponse::from);
+        }
+
+        return tripRepository.findFirstByUserIdAndTripStatusOrderByCreatedAtDesc(userId,TripStatus.CREATED)
+                .map(TripResponse::from);
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
@@ -177,7 +194,7 @@ public class TripService {
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trip station not found"));
 
-        if (tripStation.isNotified()){
+        if (tripStation.isNotified()) {
             return;
         }
 

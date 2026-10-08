@@ -5,6 +5,7 @@ import org.example.stationtracker.DTO.ChangeUserDataRequest;
 import org.example.stationtracker.DTO.DeleteAccountRequest;
 import org.example.stationtracker.entity.User;
 import org.example.stationtracker.repository.TripRepository;
+import org.example.stationtracker.repository.UserDeviceRepository;
 import org.example.stationtracker.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,13 +21,15 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final TripRepository tripRepository;
     private final RefreshTokenService refreshTokenService;
+    private final UserDeviceRepository userDeviceRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, TripRepository tripRepository, PasswordEncoder passwordEncoder, RefreshTokenService refreshTokenService) {
+    public UserService(UserRepository userRepository, TripRepository tripRepository, PasswordEncoder passwordEncoder, RefreshTokenService refreshTokenService, UserDeviceRepository userDeviceRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tripRepository = tripRepository;
         this.refreshTokenService = refreshTokenService;
+        this.userDeviceRepository = userDeviceRepository;
     }
 
     @Transactional
@@ -61,6 +64,7 @@ public class UserService {
 
         refreshTokenService.revokeAll(id);
         tripRepository.deleteAllByUserId(id);
+        userDeviceRepository.deleteByUserId(id);
         userRepository.deleteById(id);
     }
 }

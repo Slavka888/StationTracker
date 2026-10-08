@@ -14,11 +14,10 @@ import java.util.Optional;
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Long> {
     Page<Trip> findAllByUserIdAndTripStatusIn(Long userId, Collection<TripStatus> status, Pageable pageable);
-    void deleteAllByUserIdAndTripStatusIn(Long user_id, Collection<TripStatus> tripStatus);
-    void deleteByIdAndUserIdAndTripStatusIn(Long id, Long user_id, Collection<TripStatus> tripStatus);
+    void deleteAllByUserIdAndTripStatusIn(Long userId, Collection<TripStatus> tripStatus);
+    void deleteByIdAndUserIdAndTripStatusIn(Long id, Long userId, Collection<TripStatus> tripStatus);
     void deleteAllByUserId(Long userId);
-
     Optional<Trip> findByIdAndUserId(Long tripId, Long userId);
-
-    Long user(User user);
+    boolean existsByUserIdAndTripStatusIn(Long userId, Collection<TripStatus> tripStatus);
+    Optional<Trip> findFirstByUserIdAndTripStatusOrderByCreatedAtDesc(Long userId, TripStatus tripStatus);
 }

@@ -66,8 +66,8 @@ public class Trip {
     }
 
     public void markCancelled() {
-        if (this.tripStatus != TripStatus.ACTIVE) {
-            throw new IllegalStateException("Trip must be ACTIVE before marking cancelled");
+        if (this.tripStatus != TripStatus.ACTIVE && this.tripStatus != TripStatus.CREATED) {
+            throw new IllegalStateException("Trip must be ACTIVE or CREATED before marking cancelled");
         }
         this.tripStatus = TripStatus.CANCELLED;
         this.endedAt = Instant.now();
