@@ -1,5 +1,8 @@
 package org.example.stationtracker.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.example.stationtracker.DTO.ChangeUserDataRequest;
 import org.example.stationtracker.DTO.DeleteAccountRequest;
@@ -12,6 +15,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
+@Tag(
+        name = "Users",
+        description = "User account management"
+)
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
     private final UserService userService;
 
@@ -21,6 +29,13 @@ public class UserController {
     }
 
 
+    @Operation(
+            summary = "Update account",
+            description = """
+                    Changes login and password of the
+                    authenticated user.
+                    """
+    )
     @PutMapping("/update")
     public ResponseEntity<Void> updateUser(@Valid @RequestBody ChangeUserDataRequest user, @AuthenticationPrincipal Jwt jwt) {
         Long userId = jwt.getClaim("userId");
@@ -29,6 +44,14 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Delete account",
+            description = """
+                    Deletes the authenticated user and
+                    associated application data.
+                    Password confirmation is required.
+                    """
+    )
     @DeleteMapping()
     public ResponseEntity<Void> deleteUser(@Valid @RequestBody DeleteAccountRequest deleteAccountRequest, @AuthenticationPrincipal Jwt jwt) {
         Long userId = jwt.getClaim("userId");

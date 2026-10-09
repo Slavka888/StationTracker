@@ -1,0 +1,24 @@
+target/
+
+.git/
+.github/
+
+.idea/
+*.iml
+
+.env
+
+logs/
+*.log
+*.log.gz
+
+# Firebase secrets
+stationtracker-*-firebase-adminsdk-*.json
+secrets/
+
+# Не нужны для сборки приложения
+moscow_metro_stations_coordinates.json
+init_stations.sql
+
+README.md
+HELP.md
