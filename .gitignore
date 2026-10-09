@@ -39,7 +39,7 @@ build/
 logs/
 
 ### FIREBASE ###
-stationtracker-68165-firebase-adminsdk-fbsvc-4f0099fbbd.json
+secrets/
 
 ### METRO FILES###
 moscow_metro_stations_coordinates.json
