@@ -12,8 +12,8 @@ public class TripTest {
         Trip trip = createTrip();
         assertThat(trip.getTripStatus()).isEqualTo(TripStatus.CREATED);
         assertThat(trip.getCreatedAt()).isNotNull();
-        assertThat(trip.getStartedAt()).isNotNull();
-        assertThat(trip.getEndedAt()).isNotNull();
+        assertThat(trip.getStartedAt()).isNull();
+        assertThat(trip.getEndedAt()).isNull();
     }
 
     @Test
